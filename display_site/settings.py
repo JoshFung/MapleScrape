@@ -124,3 +124,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Celery
+
+celery_broker_url = 'amqp://localhost:5672'
+celery_result_backend = 'amqp://localhost:5672'
+celery_accept_content = ['application/json']
+celery_task_serializer = 'json'
+celery_result_serializer = 'json'
+celery_timezone = 'Canada/Pacific'
