@@ -14,7 +14,6 @@
                 <th>Normal Price</th>
                 <th>Sale Price</th>
                 <th>Rating</th>
-                <th>Number of Ratings</th>
                 <th>Shipping</th>
                 <th>Promo</th>
                 <th>Out of Stock</th>
@@ -28,8 +27,7 @@
             <td> {{ p.brand }}</td>
             <td> {{ p.normal_price }}</td>
             <td> {{ p.sale_price }}</td>
-            <td> {{ p.rating }}</td>
-            <td> {{ p.num_of_ratings }}</td>
+            <td> {{ p.rating }} ({{ p.num_of_ratings }})</td>
             <td> {{ p.shipping }}</td>
             <td> {{ p.promotion }}</td>
             <td> {{ p.out_of_stock }}</td>
