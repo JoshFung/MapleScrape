@@ -16,6 +16,10 @@ import os
 from time import sleep
 from webdriver_manager.chrome import ChromeDriverManager
 import re
+import json
+
+from .models import Product
+
 
 # ------------------------------------------------------------------------
 # # TODO: Temporary Service() while Chromedriverv103 is broken
@@ -58,28 +62,29 @@ def newegg(driver):
     current_page = 1
     total_pages = find_pages(driver)
     item_list = []
-    while current_page <= total_pages :
+    while current_page < total_pages:
+    # while current_page < 2:
+        # TODO: remove this eventually
+        print(current_page)
 
         # TODO: first delay
-        sleep(randint(1, 5))
+        sleep(randint(1, 3))
 
         html = driver.page_source
         soup = BeautifulSoup(html, 'lxml')
         get_all_items(soup, item_list)
         next_page(driver)
 
-        # TODO: remove this eventually
-        print(current_page)
-
         current_page += 1
 
     df = pd.DataFrame(item_list,
-                      columns=['Store', 'Item', 'Brand', 'Normal Price', 'Sale Price', 'Rating', 'Shipping',
-                               'Promo', 'Out of Stock'])
-    if not os.path.exists('data'):
-        os.mkdir('data')
-    # df.to_csv(fr'data/out-{datetime.now().strftime("%Y%m%d-%H%M%S")}.csv')
-    df.to_json(fr'data/out-{datetime.now().strftime("%Y%m%d-%H%M%S")}.json')
+                      columns=['Store', 'Item', 'Brand', 'Normal Price', 'Sale Price', 'Rating', 'Number of Ratings',
+                                                                                                 'Shipping', 'Promo',
+                               'Out of Stock'])
+
+    file_name = fr'scraping/data/out-{datetime.now().strftime("%Y%m%d-%H%M%S")}.json'
+    df.to_json(file_name)
+    save_function(file_name, len(item_list))
 
 
 @shared_task
@@ -148,7 +153,8 @@ def get_rating(item, entry):
     if item_rating is not None:
         item_rating = item_rating['aria-label'].split(' ')[1]
         num_ratings = item.find('span', {'class': 'item-rating-num'}).getText().strip('()')
-        entry.update({'Rating': item_rating + ' (' + num_ratings + ')'})
+        entry.update({'Rating': item_rating})
+        entry.update({'Number of Ratings': num_ratings})
 
 
 @shared_task
@@ -194,6 +200,31 @@ def next_page(driver):
         driver.quit()
 
     # TODO: second delay
-    sleep(randint(1, 5))
+    sleep(randint(1, 3))
 
-    driver.find_element(By.XPATH, '/html/body/div[8]/div[3]/section/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div[4]/div/div/div[11]/button').click()
+    driver.find_element(By.XPATH,
+                        '/html/body/div[8]/div[3]/section/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div[4]/div/div/div[11]/button').click()
+
+
+@shared_task(serializer='json')
+def save_function(product_list: str, count: int):
+    print('Starting save function')
+
+    file = open(product_list)
+    data = json.load(file)
+
+    for item in range(1, count + 1):
+        Product.objects.create(
+            store=data["Store"][str(item)],
+            name=data["Item"][str(item)],
+            brand=data["Brand"][str(item)],
+            normal_price=data["Normal Price"][str(item)],
+            sale_price=data["Sale Price"][str(item)],
+            rating=data["Rating"][str(item)],
+            num_of_ratings=data["Number of Ratings"][str(item)],
+            shipping=data["Shipping"][str(item)],
+            promotion=data["Promo"][str(item)],
+            out_of_stock=data["Out of Stock"][str(item)],
+        )
+
+    file.close()
