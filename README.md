@@ -6,5 +6,6 @@ Web scraping Canadian GPU sellers to display on a Django site
   - pass dataframe object to each scraper so it can add to the dataframe?
 - style site so its not ugly
 - make site display X amount of products at once
+- add way so that the top row persists as you scroll down the page
 - search bar?
 - way to sort the columns? -> ex. sort by pricing
