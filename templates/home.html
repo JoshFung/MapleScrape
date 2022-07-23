@@ -21,30 +21,18 @@
             </tr>
         </thead>
         <tbody>
-        <tr>
-            <th> swag </th>
-            <th> swag </th>
-            <th> swag </th>
-            <th> swag </th>
-            <th> swag </th>
-            <th> swag </th>
-            <th> swag </th>
-            <th> swag </th>
-            <th> swag </th>
-            <th> swag </th>
-        </tr>
         {% for p in products %}
         <tr>
-            <th> {{ p.store }}</th>
-            <th> {{ p.name }}</th>
-            <th> {{ p.brand }}</th>
-            <th> {{ p.normal_price }}</th>
-            <th> {{ p.sale_price }}</th>
-            <th> {{ p.rating }}</th>
-            <th> {{ p.num_of_ratings }}</th>
-            <th> {{ p.shipping }}</th>
-            <th> {{ p.promotion }}</th>
-            <th> {{ p.out_of_stock }}</th>
+            <td> {{ p.store }}</td>
+            <td> {{ p.name }}</td>
+            <td> {{ p.brand }}</td>
+            <td> {{ p.normal_price }}</td>
+            <td> {{ p.sale_price }}</td>
+            <td> {{ p.rating }}</td>
+            <td> {{ p.num_of_ratings }}</td>
+            <td> {{ p.shipping }}</td>
+            <td> {{ p.promotion }}</td>
+            <td> {{ p.out_of_stock }}</td>
         </tr>
         {% endfor %}
         </tbody>
