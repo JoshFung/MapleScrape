@@ -62,11 +62,8 @@ def newegg(driver):
     current_page = 1
     total_pages = find_pages(driver)
     item_list = []
-    while current_page < total_pages:
-    # while current_page < 2:
-        # TODO: remove this eventually
-        print(current_page)
 
+    while current_page < total_pages:
         # TODO: first delay
         sleep(randint(1, 3))
 
@@ -209,11 +206,12 @@ def next_page(driver):
 @shared_task(serializer='json')
 def save_function(product_list: str, count: int):
     print('Starting save function')
+    print(f'             => COUNT: {count}')
 
     file = open(product_list)
     data = json.load(file)
 
-    for item in range(1, count + 1):
+    for item in range(count):
         Product.objects.create(
             store=data["Store"][str(item)],
             name=data["Item"][str(item)],
