@@ -206,7 +206,6 @@ def next_page(driver):
 @shared_task(serializer='json')
 def save_function(product_list: str, count: int):
     print('Starting save function')
-    print(f'             => COUNT: {count}')
 
     file = open(product_list)
     data = json.load(file)
