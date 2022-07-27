@@ -12,3 +12,4 @@ class Product(models.Model):
     shipping = models.CharField(max_length=25, null=True)
     promotion = models.CharField(max_length=150, null=True)
     out_of_stock = models.BooleanField()
+    item_id = models.CharField(max_length=25, null=True)

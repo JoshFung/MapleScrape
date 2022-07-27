@@ -64,6 +64,9 @@ def newegg(driver):
     item_list = []
 
     while current_page < total_pages:
+        # TODO: remove later
+        print(current_page)
+
         # TODO: first delay
         sleep(randint(1, 3))
 
@@ -75,9 +78,9 @@ def newegg(driver):
         current_page += 1
 
     df = pd.DataFrame(item_list,
-                      columns=['Store', 'Item', 'Brand', 'Normal Price', 'Sale Price', 'Rating', 'Number of Ratings',
-                                                                                                 'Shipping', 'Promo',
-                               'Out of Stock'])
+                      columns=['store', 'item', 'brand', 'normal_price', 'sale_price', 'rating', 'number_of_ratings',
+                                                                                                 'shipping', 'promo',
+                               'out_of_stock', 'item_id'])
 
     file_name = fr'scraping/data/out-{datetime.now().strftime("%Y%m%d-%H%M%S")}.json'
     df.to_json(file_name)
@@ -99,7 +102,7 @@ def get_all_items(soup, entries):
 @shared_task
 def get_name(item, entry):
     item_name = item.find('a', {'class': 'item-title'}).text
-    entry.update({'Item': item_name})
+    entry.update({'item': item_name})
 
 
 @shared_task
@@ -107,13 +110,14 @@ def get_brand(item, entry):
     item_brand = item.find('a', {'class': 'item-brand'})
     if item_brand is not None:
         item_brand = item_brand.find('img')['title']
-    entry.update({'Brand': item_brand})
+    entry.update({'brand': item_brand})
 
 
 @shared_task
 def get_shipping(item, entry):
     item_shipping = item.find('li', {'class': 'price-ship'}).getText().partition(" ")[0]
-    entry.update({'Shipping': item_shipping})
+    item_shipping = item_shipping.strip('$')
+    entry.update({'shipping': item_shipping})
 
 
 @shared_task
@@ -140,8 +144,8 @@ def get_price(item, entry):
     else:
         normal_price = None
         sale_price = None
-    entry.update({'Normal Price': normal_price})
-    entry.update({'Sale Price': sale_price})
+    entry.update({'normal_price': normal_price})
+    entry.update({'sale_price': sale_price})
 
 
 @shared_task
@@ -150,8 +154,8 @@ def get_rating(item, entry):
     if item_rating is not None:
         item_rating = item_rating['aria-label'].split(' ')[1]
         num_ratings = item.find('span', {'class': 'item-rating-num'}).getText().strip('()')
-        entry.update({'Rating': item_rating})
-        entry.update({'Number of Ratings': num_ratings})
+        entry.update({'rating': item_rating})
+        entry.update({'number_of_ratings': num_ratings})
 
 
 @shared_task
@@ -160,24 +164,43 @@ def get_promo(item, entry):
     if item_promo is not None:
         item_promo = item_promo.getText()
         if item_promo == "OUT OF STOCK":
-            entry.update({'Out of Stock': 'True'})
+            entry.update({'out_of_stock': 'True'})
         else:
-            entry.update({'Promo': item_promo})
-            entry.update({'Out of Stock': 'False'})
+            entry.update({'promo': item_promo})
+            entry.update({'out_of_stock': 'False'})
     else:
-        entry.update({'Out of Stock': 'False'})
+        entry.update({'out_of_stock': 'False'})
+
+
+@shared_task()
+def get_item_id(item, entry):
+    item_strong_tag = item.find('strong', string='Item #: ')
+    if item_strong_tag is None:
+        item_strong_tag = item.find('strong', string='Model #: ')
+
+    if item_strong_tag is None:
+        entry.update({'item_id': None})
+    else:
+        item_text = item_strong_tag.parent.text
+        print(item_text)
+        pattern = re.compile('\\b(Item #: |Model #: )')
+        item_id = re.sub(pattern, '', item_text)
+        # item_id = item_text.strip('Item #: ')
+        print(item_id)
+        entry.update({'item_id': item_id})
 
 
 @shared_task
 def item_details(item):
     item_entry = {}
-    item_entry.update({'Store': 'Newegg'})
+    item_entry.update({'store': 'Newegg'})
     get_name(item, item_entry)
     get_brand(item, item_entry)
     get_shipping(item, item_entry)
     get_price(item, item_entry)
     get_rating(item, item_entry)
     get_promo(item, item_entry)
+    get_item_id(item, item_entry)
     return item_entry
 
 
@@ -211,17 +234,18 @@ def save_function(product_list: str, count: int):
     data = json.load(file)
 
     for item in range(count):
+        # if Product.objects.filter()
         Product.objects.create(
-            store=data["Store"][str(item)],
-            name=data["Item"][str(item)],
-            brand=data["Brand"][str(item)],
-            normal_price=data["Normal Price"][str(item)],
-            sale_price=data["Sale Price"][str(item)],
-            rating=data["Rating"][str(item)],
-            num_of_ratings=data["Number of Ratings"][str(item)],
-            shipping=data["Shipping"][str(item)],
-            promotion=data["Promo"][str(item)],
-            out_of_stock=data["Out of Stock"][str(item)],
+            store=data["store"][str(item)],
+            name=data["item"][str(item)],
+            brand=data["brand"][str(item)],
+            normal_price=data["normal_price"][str(item)],
+            sale_price=data["sale_price"][str(item)],
+            rating=data["rating"][str(item)],
+            num_of_ratings=data["number_of_ratings"][str(item)],
+            shipping=data["shipping"][str(item)],
+            promotion=data["promo"][str(item)],
+            out_of_stock=data["out_of_stock"][str(item)],
         )
 
     file.close()
