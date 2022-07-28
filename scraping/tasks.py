@@ -1,23 +1,22 @@
+import json
+import os
+import re
+import sqlite3
+from datetime import datetime
+from random import randint
+from time import sleep
+
 import pandas as pd
 from bs4 import BeautifulSoup
-from celery import Celery, shared_task
-from celery.schedules import crontab
-from datetime import datetime
+from celery import shared_task
 from dotenv import load_dotenv
-from random import randint
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import os
-import sqlite3
-from time import sleep
-from webdriver_manager.chrome import ChromeDriverManager
-import re
-import json
+from selenium.webdriver.support.ui import WebDriverWait
 
 from .models import Product
 
@@ -40,7 +39,6 @@ from .models import Product
 @shared_task
 def scrape():
     load_dotenv()
-
     # service = Service(executable_path=ChromeDriverManager().install())
     service = Service(executable_path=os.getenv("CHROMEDRIVER_PATH"))
 
@@ -102,7 +100,7 @@ def newegg(driver):
 
     df = pd.DataFrame(item_list,
                       columns=['store', 'item', 'brand', 'normal_price', 'sale_price', 'rating', 'number_of_ratings',
-                                                                                                 'shipping', 'promo',
+                               'shipping', 'promo',
                                'out_of_stock', 'item_id'])
 
     file_name = fr'scraping/data/out-{datetime.now().strftime("%Y%m%d-%H%M%S")}.json'
