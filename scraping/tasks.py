@@ -13,6 +13,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
+import sqlite3
 from time import sleep
 from webdriver_manager.chrome import ChromeDriverManager
 import re
@@ -51,10 +52,32 @@ def scrape():
     driver.get("https://www.newegg.ca/Desktop-Graphics-Cards/SubCategory/ID-48?Tid=7708&PageSize=96")
     # driver.get("https://www.newegg.ca/Desktop-Graphics-Cards/SubCategory/ID-48/Page-7?Tid=7708&PageSize=96")
 
+    conn = create_connection('db.sqlite3')
+    with conn:
+        delete_all_rows(conn)
+
     newegg(driver)
 
     driver.close()
     driver.quit()
+
+
+@shared_task()
+def create_connection(db_file):
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+    except Exception as e:
+        print(e)
+    return conn
+
+
+@shared_task()
+def delete_all_rows(conn):
+    sql = 'DELETE FROM scraping_product'
+    cur = conn.cursor()
+    cur.execute(sql)
+    conn.commit()
 
 
 @shared_task
@@ -246,6 +269,7 @@ def save_function(product_list: str, count: int):
             shipping=data["shipping"][str(item)],
             promotion=data["promo"][str(item)],
             out_of_stock=data["out_of_stock"][str(item)],
+            item_id=data["item_id"][str(item)],
         )
 
     file.close()
