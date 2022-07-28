@@ -1,12 +1,15 @@
 {% extends 'base.html' %}
 
+<html>
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
 
 {% block content %}
 
-<div class="row">
-    <table>
-        <thead>
+    <div class="row">
+        <table>
+            <thead>
             <tr>
                 <th>Store</th>
                 <th>Item</th>
@@ -18,23 +21,51 @@
                 <th>Promo</th>
                 <th>In Stock</th>
             </tr>
-        </thead>
-        <tbody>
-        {% for p in products %}
-        <tr>
-            <td> {{ p.store }}</td>
-            <td> {{ p.name }}</td>
-            {% if p.brand != null %}<td>{{ p.brand }}</td>{% else %}<td></td>{% endif %}
-            {% if p.normal_price != null %}<td>{{ p.normal_price }}</td>{% else %}<td></td>{% endif %}
-            {% if p.sale_price != null %}<td>{{ p.sale_price }}</td>{% else %}<td></td>{% endif %}
-            {% if p.rating != null %}<td>{{ p.rating }} ({{ p.num_of_ratings }})</td>{% else %}<td></td>{% endif %}
-            {% if p.shipping != null %}<td>{{ p.shipping }}</td>{% else %}<td></td>{% endif %}
-            {% if p.promotion != null %}<td>{{ p.promotion }}</td>{% else %}<td></td>{% endif %}
-            {% if p.out_of_stock != True %}<td>&#10003</td>{% else %}<td>&#10007</td>{% endif %}
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+            {% for p in products %}
+                <tr>
+                    <td> {{ p.store }}</td>
+                    <td> {{ p.name }}</td>
+                    {% if p.brand != null %}
+                        <td>{{ p.brand }}</td>{% else %}
+                        <td></td>{% endif %}
+                    {% if p.normal_price != null %}
+                        <td>{{ p.normal_price }}</td>{% else %}
+                        <td></td>{% endif %}
+                    {% if p.sale_price != null %}
+                        <td>{{ p.sale_price }}</td>{% else %}
+                        <td></td>{% endif %}
+                    {% if p.rating != null %}
+                        <td>{{ p.rating }} ({{ p.num_of_ratings }})</td>{% else %}
+                        <td></td>{% endif %}
+                    {% if p.shipping != null %}
+                        <td>{{ p.shipping }}</td>{% else %}
+                        <td></td>{% endif %}
+                    {% if p.promotion != null %}
+                        <td>{{ p.promotion }}</td>{% else %}
+                        <td></td>{% endif %}
+                    {% if p.out_of_stock != True %}
+                        <td>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-check-lg" viewBox="0 0 16 16" color="green">
+                                <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+                            </svg>
+                        </td>{% else %}
+                        <td>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-x-lg" viewBox="0 0 16 16" color="red">
+                                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                            </svg>
+                        </td>{% endif %}
+                    
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 {% endblock content %}
+</html>
+{% load static %}
+
