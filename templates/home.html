@@ -2,13 +2,11 @@
 
 <html>
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+
 
 {% block content %}
-
     <div class="row">
-        <table class="table-bordered text-center">
+        <table id="table" data-toggle="table" data-search="true">
             <thead>
             <tr>
                 <th>Store</th>
