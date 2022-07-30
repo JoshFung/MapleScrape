@@ -6,7 +6,16 @@
 
 {% block content %}
     <div class="row">
-        <table id="table" data-toggle="table" data-search="true">
+        <table
+                id="table" data-toggle="table"
+                data-search="true"
+                data-pagination="true"
+                data-pagination-v-align="both"
+                data-pagination-parts=['pageSize','pageList']
+                data-search-highlight="true"
+                data-page-list="[25, 50, 100, All]"
+                data-page-size="25"
+        >
             <thead>
             <tr>
                 <th>Store</th>
