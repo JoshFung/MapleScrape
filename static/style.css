@@ -10,6 +10,15 @@
     font-size: 64px;
 }
 
-a i {
+div a {
+}
+
+#icon {
     font-size: 1.5rem;
+    padding-left: 1rem;
+}
+
+#spacer-icon {
+    font-size: 1.5rem;
+    padding-right: 1rem;
 }
