@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
 <html>
-{% load static %}
 
 <head>
+    {% load static %}
     <meta charset="utf-8">
     <title>{% block title %}GPU WEB SCRAPER{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -21,26 +21,35 @@
 <header>
     <div class="container">
         <div class="navbar d-flex flex-row">
-            <div class="hstack ms-auto justify-content-end" style="visibility: hidden">
-                <a class="nav-link" href="https://github.com/JoshFung" target="_blank" rel="noopener noreferrer">
-                    <i class="bi bi-github lg"></i>
-                </a>
-                <a class="nav-link" href="https://www.instagram.com/josh.fung/" target="_blank"
-                   rel="noopener noreferrer">
-                    <i class="bi bi-instagram"></i>
-                </a>
+            <div class="ms-auto justify-content-start">
+                <div class="container hstack" style="visibility: hidden">
+                    <a class="nav-link" href="https://github.com/JoshFung" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-github lg" id="spacer-icon"></i>
+                    </a>
+                    <a class="nav-link" href="mailto: joshuagyfung@gmail.com">
+                        <i class="bi bi-envelope" id="spacer-icon"></i>
+                    </a>
+                    <a class="nav-link" href="https://www.instagram.com/josh.fung/" target="_blank"
+                       rel="noopener noreferrer">
+                        <i class="bi bi-instagram" id="spacer-icon"></i>
+                    </a>
+                </div>
             </div>
             <h1 class="mx-auto justify-content-center">GPU Web Scraper</h1>
-            <div class="hstack ms-auto justify-content-end">
-                <a class="nav-link" href="https://github.com/JoshFung" target="_blank" rel="noopener noreferrer">
-                    <i class="bi bi-github lg"></i>
-                </a>
-                <a class="nav-link" href="https://www.instagram.com/josh.fung/" target="_blank"
-                   rel="noopener noreferrer">
-                    <i class="bi bi-instagram"></i>
-                </a>
+            <div class="ms-auto justify-content-end">
+                <div class="container hstack">
+                    <a class="nav-link" href="https://github.com/JoshFung" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-github lg" id="icon"></i>
+                    </a>
+                    <a class="nav-link" href="mailto: joshuagyfung@gmail.com">
+                        <i class="bi bi-envelope" id="icon"></i>
+                    </a>
+                    <a class="nav-link" href="https://www.instagram.com/josh.fung/" target="_blank"
+                       rel="noopener noreferrer">
+                        <i class="bi bi-instagram" id="icon"></i>
+                    </a>
+                </div>
             </div>
-            </nav>
         </div>
     </div>
 </header>
