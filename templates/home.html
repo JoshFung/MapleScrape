@@ -5,19 +5,23 @@
 
 
 {% block content %}
-    <div class="row">
+    <div class="container">
         <table
                 id="table" data-toggle="table"
-                data-search="true"
                 data-pagination="true"
-                data-pagination-v-align="both"
+                data-pagination-v-align="bottom"
+                data-pagination-h-align="right"
                 data-pagination-parts=['pageSize','pageList']
+                data-pagination-parts=['pageList']
+                data-search="true"
                 data-search-highlight="true"
+                data-search-align="right"
                 data-page-list="[25, 50, 100, All]"
                 data-page-size="25"
                 data-sortable="true"
                 data-sticky-header="true"
                 data-show-columns="true"
+                data-sort-reset="true"
         >
             <thead>
             <tr>
