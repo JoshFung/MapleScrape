@@ -11,20 +11,33 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'dist/bootstrap-table.min.css' %}">
     <link rel="stylesheet" href="{% static 'dist/bootstrap-table.css' %}">
-    <link rel="stylesheet" href="{% static 'dist/extensions/sticky-header/bootstrap-table-sticky-header.css' %}"
+    <link rel="stylesheet" href="{% static 'dist/extensions/sticky-header/bootstrap-table-sticky-header.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 
 </head>
 
 <body>
 <header>
-    <h1>GPU WEB SCRAPER</h1>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg bg-white">
+            <h1 class="navbar-brand">GPU Web Scraper</h1>
+            <ul class="navbar-nav">
+                <div class="navbar-nav">
+                    <a class="nav-link" href="https://github.com/JoshFung" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-github lg"></i>
+                    </a>
+                    <a class="nav-link" href="https://www.instagram.com/josh.fung/" target="_blank"
+                       rel="noopener noreferrer">
+                        <i class="bi bi-instagram"></i>
+                    </a>
+                </div>
+            </ul>
+        </nav>
+    </div>
 </header>
-<h2>Product Table</h2>
-<div class="container">
-    {% block content %}
-    {% endblock content %}
-</div>
+{% block content %}
+{% endblock content %}
 <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
 <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'dist/bootstrap-table.min.js' %}"></script>
