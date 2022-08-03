@@ -40,7 +40,6 @@ def scrape():
     chrome_options.binary_location = "/Applications/Google Chrome Beta.app/Contents/MacOS/Google Chrome Beta"
     chrome_options.page_load_strategy = 'normal'
     driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver.get(os.getenv("NEWEGG_URL"))
 
     conn = create_connection('db.sqlite3')
     with conn:
@@ -48,7 +47,9 @@ def scrape():
 
     item_list = []
 
+    driver.get(os.getenv("NEWEGG_URL"))
     newegg(driver, item_list)
+    driver.get(os.getenv("BEST_BUY_URL"))
 
     df = pd.DataFrame(item_list,
                       columns=['store', 'item', 'brand', 'normal_price', 'sale_price', 'rating', 'number_of_ratings',
