@@ -12,39 +12,29 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 @shared_task
 def best_buy(driver, item_list):
-    current_page = 1
-    total_pages = find_pages(driver)
+    load_all(driver)
 
-    while current_page < total_pages:
-        # TODO: remove later
-        print(f'BEST BUY: {current_page}')
+    # TODO: first delay
+    sleep(randint(1, 2))
 
-        # TODO: first delay
-        sleep(randint(1, 2))
-
-        html = driver.page_source
-        soup = BeautifulSoup(html, 'lxml')
-        get_all_items(soup, item_list)
-        next_page(driver)
-
-        current_page += 1
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'lxml')
+    get_all_items(soup, item_list)
 
 
 @shared_task
 def get_all_items(soup, entries):
-    all_items = soup.find_all('div', {'class': 'item-container'})
+    # all_items = soup.find_all('div', {'class': 'x-productListItem'})
+    all_items = soup.find_all('a', {'itemprop': 'url'})
 
     for item in all_items:
-        if item.find('div', {'class': 'item-sponsored-box'}) is not None:
-            print("Sponsored item skipped...")
-        else:
-            item_entry = item_details(item)
-            entries.append(item_entry)
+        item_entry = item_details(item)
+        entries.append(item_entry)
 
 
 @shared_task
 def get_name(item, entry):
-    item_name = item.find('a', {'class': 'item-title'}).text
+    item_name = item.find('a', {'itemprop': 'name'}).text
     entry.update({'item': item_name})
 
 
@@ -58,8 +48,10 @@ def get_brand(item, entry):
 
 @shared_task
 def get_shipping(item, entry):
-    item_shipping = item.find('li', {'class': 'price-ship'}).getText().partition(" ")[0]
-    item_shipping = item_shipping.strip('$')
+    item_shipping = item.find('span', {'class': 'container_1DAvI'}).text
+    item_shipping = item_shipping.strip()
+    if item_shipping != 'Available to ship':
+        item_shipping = 'Sold out online'
     entry.update({'shipping': item_shipping})
 
 
@@ -133,7 +125,7 @@ def get_item_id(item, entry):
 @shared_task
 def item_details(item):
     item_entry = {}
-    item_entry.update({'store': 'Newegg'})
+    item_entry.update({'store': 'Best Buy'})
     get_name(item, item_entry)
     get_brand(item, item_entry)
     get_shipping(item, item_entry)
@@ -145,13 +137,7 @@ def item_details(item):
 
 
 @shared_task
-def find_pages(driver):
-    page_index = driver.find_element(By.CLASS_NAME, 'list-tool-pagination-text').text.split(' ')[1]
-    return int(page_index.split('/')[1])
-
-
-@shared_task
-def load_more(driver):
+def load_all(driver):
     while True:
         try:
             WebDriverWait(driver, 25).until(
@@ -167,6 +153,3 @@ def load_more(driver):
 
         # TODO: second delay
         sleep(randint(1, 2))
-
-
-
