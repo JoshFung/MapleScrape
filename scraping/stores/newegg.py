@@ -58,22 +58,22 @@ def get_brand(item, entry):
 
 @shared_task
 def get_shipping(item, entry):
-    item_shipping = item.find('li', {'class': 'price-ship'}).getText().partition(" ")[0]
+    item_shipping = item.find('li', {'class': 'price-ship'}).get_text().partition(" ")[0]
     item_shipping = item_shipping.strip('$')
     entry.update({'shipping': item_shipping})
 
 
 @shared_task
 def extract_num(string):
-    no_commas = string.replace(",", "")
+    no_commas = string.replace(',', '').replace('$', '')
     filtered_string = re.findall(r"\d+\.\d+", no_commas)
     return filtered_string[0]
 
 
 @shared_task
 def get_price(item, entry):
-    was_price = item.find('li', {'class': 'price-was'}).getText()
-    current_price = item.find('li', {'class': 'price-current'}).getText()
+    was_price = item.find('li', {'class': 'price-was'}).get_text()
+    current_price = item.find('li', {'class': 'price-current'}).get_text()
 
     if was_price != '' and current_price != '':
         normal_price = extract_num(was_price)
@@ -96,7 +96,7 @@ def get_rating(item, entry):
     item_rating = item.find('i', {'class': 'rating'})
     if item_rating is not None:
         item_rating = item_rating['aria-label'].split(' ')[1]
-        num_ratings = item.find('span', {'class': 'item-rating-num'}).getText().strip('()')
+        num_ratings = item.find('span', {'class': 'item-rating-num'}).get_text().strip('()')
         entry.update({'rating': item_rating})
         entry.update({'number_of_ratings': num_ratings})
 
@@ -105,7 +105,7 @@ def get_rating(item, entry):
 def get_promo(item, entry):
     item_promo = item.find('p', {'class': 'item-promo'})
     if item_promo is not None:
-        item_promo = item_promo.getText()
+        item_promo = item_promo.get_text()
         if item_promo == "OUT OF STOCK":
             entry.update({'out_of_stock': 'True'})
         else:
@@ -115,19 +115,19 @@ def get_promo(item, entry):
         entry.update({'out_of_stock': 'False'})
 
 
-@shared_task()
-def get_item_id(item, entry):
-    item_strong_tag = item.find('strong', string='Item #: ')
-    if item_strong_tag is None:
-        item_strong_tag = item.find('strong', string='Model #: ')
-
-    if item_strong_tag is None:
-        entry.update({'item_id': None})
-    else:
-        item_text = item_strong_tag.parent.text
-        pattern = re.compile('\\b(Item #: |Model #: )')
-        item_id = re.sub(pattern, '', item_text)
-        entry.update({'item_id': item_id})
+# @shared_task()
+# def get_item_id(item, entry):
+#     item_strong_tag = item.find('strong', string='Item #: ')
+#     if item_strong_tag is None:
+#         item_strong_tag = item.find('strong', string='Model #: ')
+#
+#     if item_strong_tag is None:
+#         entry.update({'item_id': None})
+#     else:
+#         item_text = item_strong_tag.parent.text
+#         pattern = re.compile('\\b(Item #: |Model #: )')
+#         item_id = re.sub(pattern, '', item_text)
+#         entry.update({'item_id': item_id})
 
 
 @shared_task
@@ -140,7 +140,6 @@ def item_details(item):
     get_price(item, item_entry)
     get_rating(item, item_entry)
     get_promo(item, item_entry)
-    get_item_id(item, item_entry)
     return item_entry
 
 
