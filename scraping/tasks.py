@@ -11,9 +11,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
 from scraping.models import Product
-from scraping.stores.newegg import newegg
-
-
 # ------------------------------------------------------------------------
 # # TODO: Temporary Service() while Chromedriverv103 is broken
 # # service = Service(executable_path=ChromeDriverManager().install())
@@ -27,6 +24,8 @@ from scraping.stores.newegg import newegg
 # driver.get("https://www.newegg.ca/Desktop-Graphics-Cards/SubCategory/ID-48?Tid=7708&PageSize=96")
 # # driver.get("https://www.newegg.ca/Desktop-Graphics-Cards/SubCategory/ID-48/Page-7?Tid=7708&PageSize=96")
 # ------------------------------------------------------------------------
+from scraping.stores.best_buy import best_buy
+from scraping.stores.newegg import newegg
 
 
 @shared_task
@@ -39,7 +38,9 @@ def scrape():
     # TODO: Remove when switching off beta of Chrome and Chromedriver
     chrome_options.binary_location = "/Applications/Google Chrome Beta.app/Contents/MacOS/Google Chrome Beta"
     chrome_options.page_load_strategy = 'normal'
+    # chrome_options.add_argument('--headless')
     driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver.maximize_window()
 
     conn = create_connection('db.sqlite3')
     with conn:
@@ -47,14 +48,15 @@ def scrape():
 
     item_list = []
 
+    driver.get(os.getenv("BEST_BUY_URL"))
+    best_buy(driver, item_list)
     driver.get(os.getenv("NEWEGG_URL"))
     newegg(driver, item_list)
-    driver.get(os.getenv("BEST_BUY_URL"))
 
     df = pd.DataFrame(item_list,
                       columns=['store', 'item', 'brand', 'normal_price', 'sale_price', 'rating', 'number_of_ratings',
                                'shipping', 'promo',
-                               'out_of_stock', 'item_id'])
+                               'out_of_stock'])
 
     file_name = fr'scraping/data/out-{datetime.now().strftime("%Y%m%d-%H%M%S")}.json'
     df.to_json(file_name)
@@ -101,7 +103,6 @@ def save_function(product_list: str, count: int):
             shipping=data["shipping"][str(item)],
             promotion=data["promo"][str(item)],
             out_of_stock=data["out_of_stock"][str(item)],
-            item_id=data["item_id"][str(item)],
         )
 
     file.close()
