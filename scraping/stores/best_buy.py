@@ -4,7 +4,8 @@ from bs4 import BeautifulSoup
 from celery import shared_task
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
-from urllib3.exceptions import MaxRetryError
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 @shared_task
@@ -13,13 +14,15 @@ def best_buy(driver, item_list):
     print(f'CODE: {code}')
 
     # if we site failed to load
-    if code == 400:
+    if code == 400 or code == 404:
         return
 
     # # TODO: first delay
     sleep(5)
 
-    print('FLAG 10')
+    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'shippingAvailability_2X3xt')))
+    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'container_1DAvI')))
+
     html = driver.page_source
     soup = BeautifulSoup(html, 'lxml')
     get_all_items(soup, item_list)
@@ -27,45 +30,44 @@ def best_buy(driver, item_list):
 
 @shared_task
 def get_all_items(soup, entries):
-    print('FLAG 11')
-    all_items = soup.find_all('a', {'itemprop': 'url'})
-    print(f'BEST BUY # OF ITEMS: {len(all_items)}')
-    print('FLAG 12')
+    item_grid = soup.find('div', {'class': 'productsRow_DcaXn row_1mOdd'})
+    all_items = item_grid.find_all('a', {'itemprop': 'url'})
+
+    item_num = 1
 
     for item in all_items:
-        print(item)
         item_entry = item_details(item)
         entries.append(item_entry)
+        print(f'BEST BUY ITEM #:{item_num}')
+        item_num += 1
 
 
 @shared_task
 def get_name_and_brand(item, entry):
-    print('FLAG 15')
-    print('FLAG 16')
     item_name = item.find('div', {'itemprop': 'name'}).get_text()
+
     name_and_brand = item_name.split(' ', 1)
-    entry.update({'brand': name_and_brand[0]})
-    entry.update({'item': name_and_brand[1]})
+    try:
+        entry.update({'item': name_and_brand[1]})
+        entry.update({'brand': name_and_brand[0]})
+    except IndexError as e:
+        entry.update({'brand': None})
+        entry.update({'item': name_and_brand[0]})
 
 
 @shared_task
 def extract_num(string):
-    print('FLAG 18')
     print(f'NUM: {string}')
-    # no_commas = string.replace(",", "")
-    # print(f'NO COMMAS NUM: {no_commas}')
-    # filtered_string = re.findall(r"\d+\.\d+", no_commas)
-    filtered_string = string.strip('SAVE $')
-    print(f"FILTERED STRING: {filtered_string}")
-    return filtered_string[0]
+    no_commas = string.replace(",", "")
+    filtered_string = no_commas.strip('SAVE $')
+
+    return filtered_string
 
 
 @shared_task
 def get_price(item, entry):
-    print('FLAG 17')
     price = item.find('div', {'class': 'price_2j8lL'}).div.get_text()
     price = extract_num(price)
-    print('FLAG 19')
 
     discount = item.find('span', {'class': 'productSaving_3T6HS'})
     if discount is not None:
@@ -83,8 +85,9 @@ def get_price(item, entry):
 
 @shared_task
 def get_rating(item, entry):
-    item_rating = item.find('meta', {'itemprop': 'ratingValue'})
-    num_ratings = item.find('meta', {'itemprop': 'reviewCount'})
+    item_rating = item.find('meta', {'itemprop': 'ratingValue'})['content']
+    num_ratings = item.find('meta', {'itemprop': 'reviewCount'})['content']
+    print(f'RATING: {item_rating} => # of RATINGS: {num_ratings}')
     entry.update({'rating': item_rating})
     entry.update({'number_of_ratings': num_ratings})
 
@@ -125,9 +128,9 @@ def get_availability(item, entry):
 @shared_task
 def item_details(item):
     item_entry = {}
-    print('FLAG 13')
+    # print('FLAG 13')
     item_entry.update({'store': 'Best Buy'})
-    print('FLAG 14')
+    # print('FLAG 14')
     get_name_and_brand(item, item_entry)
     get_price(item, item_entry)
     get_rating(item, item_entry)
@@ -138,48 +141,36 @@ def item_details(item):
 
 @shared_task
 def load_all(driver):
-    scroll_num = 3
-    for i in range(1, scroll_num):
-        driver.execute_script("window.scrollTo(1,50000)")
-        sleep(1)
+    failure_count = 0
 
     while True:
+        sleep(3)
+        driver.execute_script("window.scrollTo(1,50000)")
         try:
-            print('FLAG 1')
             driver.find_element(By.CLASS_NAME, 'endOfList_b04RG')
-            print('FLAG 2')
             return 200
         except (NoSuchElementException, ElementNotInteractableException) as e:
             try:
-                print('FLAG 3')
-                # WebDriverWait(driver, 25).until(
-                #     EC.element_to_be_clickable((By.CLASS_NAME, 'button_E6SE9')))
-                # driver.find_element(By.XPATH, '/html/body/div[1]/div/div[2]/div[1]/div/main/a/div/button').click()
-                # driver.find_element(By.CLASS_NAME, 'button_E6SE9').click()
 
-                # button = driver.find_element(By.CLASS_NAME, 'button_E6SE9')
                 button = driver.find_element(By.XPATH,
                                              '/html/body/div[1]/div/div[2]/div[1]/div/main/a/div/button')
                 driver.execute_script('arguments[0].click();', button)
-                # driver.find_element(By.XPATH, '/html/body/div[1]/div/div[2]/div[1]/div/main/a/div/button').click()
-            # except (NoSuchElementException, ElementNotInteractableException) as e:
-            #     print('FLAG 4')
-            #     return 404
+                # print('CLICKED LOAD MORE')
             except (NoSuchElementException, ElementNotInteractableException) as e:
-                print('FLAG 7')
-                try:
-                    # if driver.find_element(By.CLASS_NAME,
-                    #                        'materialOverride_STCNx toolbarTitle_2lgWp').get_text() == '0 results':
-                    # total_results = driver.find_element(By.XPATH,
-                    #                                     '/html/body/div[1]/div/div[2]/div[1]/div/main/div[1]/div[3]/div/div[1]/span')
-                    total_results = driver.find_element(By.CLASS_NAME, 'materialOverride_STCNx toolbarTitle_2lgWp')
-                    print(f'TOTAL RESULTS: {total_results.get_text()}')
-                    if total_results.get_text() == '0 results':
-                        return 404
-                    else:
-                        print('FLAG 9')
-                except NoSuchElementException:
-                    print('FLAG 8')
-        except (ConnectionRefusedError, MaxRetryError) as e:
-            print('FLAG 5')
-            return 404
+                # # print('COULD NOT FIND LOAD MORE')
+                # try:
+                #     sleep(120)
+                #     total_results = driver.find_element(By.XPATH,
+                #                                         '/html/body/div[1]/div/div[2]/div[1]/div/main/div[1]/div[4]/div/div/span')
+                #     print(f'TOTAL RESULTS: {total_results.get_text()}')
+                #     if total_results.get_text() == '0 results':
+                #         return 404
+                # except NoSuchElementException:
+                #     print('COULD NOT FIND LOAD MORE NOR END OF LIST')
+                #     failure_count += 1
+                #     if failure_count == 30:
+                #         return 404
+                print('COULD NOT FIND LOAD MORE NOR END OF LIST')
+                failure_count += 1
+                if failure_count == 30:
+                    return 404
