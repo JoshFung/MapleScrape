@@ -11,6 +11,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
 from scraping.models import Product
+from scraping.stores.best_buy import best_buy
+from scraping.stores.canada_computers import canada_computers
+from scraping.stores.newegg import newegg
+
+
 # ------------------------------------------------------------------------
 # # TODO: Temporary Service() while Chromedriverv103 is broken
 # # service = Service(executable_path=ChromeDriverManager().install())
@@ -24,8 +29,6 @@ from scraping.models import Product
 # driver.get("https://www.newegg.ca/Desktop-Graphics-Cards/SubCategory/ID-48?Tid=7708&PageSize=96")
 # # driver.get("https://www.newegg.ca/Desktop-Graphics-Cards/SubCategory/ID-48/Page-7?Tid=7708&PageSize=96")
 # ------------------------------------------------------------------------
-from scraping.stores.best_buy import best_buy
-from scraping.stores.newegg import newegg
 
 
 @shared_task
@@ -48,6 +51,8 @@ def scrape():
 
     item_list = []
 
+    driver.get(os.getenv("CANADA_COMPUTERS_URL"))
+    canada_computers(driver, item_list)
     driver.get(os.getenv("BEST_BUY_URL"))
     best_buy(driver, item_list)
     driver.get(os.getenv("NEWEGG_URL"))
