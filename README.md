@@ -59,9 +59,9 @@ There are three ways of running the scraping process:
 2. Start up RabbitMQ using `rabbitmq-server` in a terminal
     1. Wait until it completes when message `Starting broker... completed with x plugins`
 3. Start up the actual service with the Celery command: `celery -A gpu-web-scraper worker -B -l INFO`
-    2. `-A gpu-web-scraper` specifies which project
-    3. `-B` tells it to run on the given beat schedule
-    4. `-l INFO` tells it log information
+    1. `-A gpu-web-scraper` specifies which project
+    2. `-B` tells it to run on the given beat schedule
+    3. `-l INFO` tells it log information
 
 #### With Celery and RabbitMQTT without a schedule
 
@@ -78,6 +78,8 @@ There are three ways of running the scraping process:
    from scraping.tasks import scrape
    scrape.apply_async()
    ```
+
+Note: You can end RabbitMQTT service using `rabbitmqctl stop`
 
 #### Without Celery and RabbitMQTT
 
@@ -96,4 +98,6 @@ There are three ways of running the scraping process:
 Run the following commands:
 
 1. `python manage.py collectstatic`
-2. `python manage.py runserver`
+2. `python manage.py makemigrations`
+3. `python manage.py migrate`
+4. `python manage.py runserver`
