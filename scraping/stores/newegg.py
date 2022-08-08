@@ -16,10 +16,8 @@ def newegg(driver, item_list):
     total_pages = find_pages(driver)
 
     while current_page < total_pages:
-        # TODO: remove later
         print(f'NEWEGG: {current_page}')
 
-        # TODO: first delay
         sleep(randint(1, 2))
 
         html = driver.page_source
@@ -157,7 +155,6 @@ def next_page(driver):
     except TimeoutException:
         driver.quit()
 
-    # TODO: second delay
     sleep(randint(1, 2))
 
     driver.find_element(By.XPATH,
