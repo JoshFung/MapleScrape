@@ -4,8 +4,6 @@ from bs4 import BeautifulSoup
 from celery import shared_task
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 
 @shared_task
@@ -17,11 +15,7 @@ def best_buy(driver, item_list):
     if code == 400 or code == 404:
         return
 
-    # # TODO: first delay
     sleep(5)
-
-    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'shippingAvailability_2X3xt')))
-    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'container_1DAvI')))
 
     html = driver.page_source
     soup = BeautifulSoup(html, 'lxml')
@@ -128,9 +122,7 @@ def get_availability(item, entry):
 @shared_task
 def item_details(item):
     item_entry = {}
-    # print('FLAG 13')
     item_entry.update({'store': 'Best Buy'})
-    # print('FLAG 14')
     get_name_and_brand(item, item_entry)
     get_price(item, item_entry)
     get_rating(item, item_entry)
@@ -155,21 +147,7 @@ def load_all(driver):
                 button = driver.find_element(By.XPATH,
                                              '/html/body/div[1]/div/div[2]/div[1]/div/main/a/div/button')
                 driver.execute_script('arguments[0].click();', button)
-                # print('CLICKED LOAD MORE')
             except (NoSuchElementException, ElementNotInteractableException) as e:
-                # # print('COULD NOT FIND LOAD MORE')
-                # try:
-                #     sleep(120)
-                #     total_results = driver.find_element(By.XPATH,
-                #                                         '/html/body/div[1]/div/div[2]/div[1]/div/main/div[1]/div[4]/div/div/span')
-                #     print(f'TOTAL RESULTS: {total_results.get_text()}')
-                #     if total_results.get_text() == '0 results':
-                #         return 404
-                # except NoSuchElementException:
-                #     print('COULD NOT FIND LOAD MORE NOR END OF LIST')
-                #     failure_count += 1
-                #     if failure_count == 30:
-                #         return 404
                 print('COULD NOT FIND LOAD MORE NOR END OF LIST')
                 failure_count += 1
                 if failure_count == 30:
