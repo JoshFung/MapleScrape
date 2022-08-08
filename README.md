@@ -73,10 +73,10 @@ There are three ways of running the scraping process:
 5. Enter the Python console and run the following:
 
    ```
-       import django
-       django.setup()
-       from scraping.tasks import scrape
-       scrape.apply_async()
+   import django
+   django.setup()
+   from scraping.tasks import scrape
+   scrape.apply_async()
    ```
 
 #### Without Celery and RabbitMQTT
@@ -85,10 +85,10 @@ There are three ways of running the scraping process:
 2. Enter the Python console and run the following:
 
    ```
-       import django
-       django.setup()
-       from scraping.tasks import scrape
-       scrape()
+   import django
+   django.setup()
+   from scraping.tasks import scrape
+   scrape()
    ```
 
 ### Collect the static files and run the site
