@@ -2,7 +2,7 @@
 
 Web scraping Canadian GPU sellers to display on a Django site
 
-![Example Screenshot](assets/Screenshot Canadian GPU Web Scraper.png)
+![Example Screenshot](assets/Screenshot Canadian GPU Web Scraper.png?raw=true)
 
 
 <!-- ABOUT THE PROJECT -->
