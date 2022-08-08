@@ -1,4 +1,5 @@
 import os
+
 from celery import Celery
 from celery.schedules import crontab
 
@@ -19,6 +20,6 @@ app.conf.beat_schedule = {
     # executes every 10 minute
     'scraping-task-ten-min': {
         'task': 'scraping.tasks.scrape',
-        'schedule': crontab(minute='*/10')
+        'schedule': crontab(minute=0, hour=0)
     }
 }
