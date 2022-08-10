@@ -56,7 +56,7 @@ There are three ways of running the scraping process:
 #### With Celery and RabbitMQTT on a schedule
 
 1. Make sure you install RabbitMQTT
-2. Start up RabbitMQ using `rabbitmq-server` in a terminal
+2. Start up RabbitMQ using `sudo rabbitmq-server` in a terminal
     1. Wait until it completes when message `Starting broker... completed with x plugins`
 3. Start up the actual service with the Celery command: `celery -A gpu-web-scraper worker -B -l INFO`
     1. `-A gpu-web-scraper` specifies which project
