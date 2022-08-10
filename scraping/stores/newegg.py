@@ -64,8 +64,8 @@ def get_shipping(item, entry):
 @shared_task
 def extract_num(string):
     no_commas = string.replace(',', '').replace('$', '')
-    filtered_string = re.findall(r"\d+\.\d+", no_commas)
-    return filtered_string[0]
+    filtered_string = re.findall(r"\d+\.\d+", no_commas)[0]
+    return filtered_string
 
 
 @shared_task

@@ -1,3 +1,4 @@
+import re
 from time import sleep
 
 from bs4 import BeautifulSoup
@@ -53,7 +54,10 @@ def get_name_and_brand(item, entry):
 def extract_num(string):
     print(f'NUM: {string}')
     no_commas = string.replace(",", "")
-    filtered_string = no_commas.strip('SAVE $')
+    try:
+        filtered_string = re.findall(r'\d+\.\d+', no_commas)[0]
+    except IndexError:
+        filtered_string = re.findall(r'\d+', no_commas)[0]
 
     return filtered_string
 

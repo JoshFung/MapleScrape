@@ -40,7 +40,7 @@ def get_name_and_brand(item, entry):
 @shared_task
 def extract_num(string):
     no_commas = string.replace(",", "")
-    filtered_string = no_commas.strip('SAVE $')
+    filtered_string = re.findall(r'\d+\.\d+', no_commas)[0]
 
     return filtered_string
 
