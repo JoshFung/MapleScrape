@@ -1,11 +1,10 @@
 import json
-import os
 import sqlite3
 from datetime import datetime
 
 import pandas as pd
 from celery import shared_task
-from dotenv import load_dotenv
+from decouple import config
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -33,9 +32,8 @@ from scraping.stores.newegg import newegg
 
 @shared_task
 def scrape():
-    load_dotenv()
     # service = Service(executable_path=ChromeDriverManager().install())
-    service = Service(executable_path=os.getenv("CHROMEDRIVER_PATH"))
+    service = Service(executable_path=config('CHROMEDRIVER_PATH'))
 
     chrome_options = Options()
     # TODO: Remove when switching off beta of Chrome and Chromedriver
@@ -51,11 +49,11 @@ def scrape():
 
     item_list = []
 
-    driver.get(os.getenv("CANADA_COMPUTERS_URL"))
+    driver.get(config('CANADA_COMPUTERS_URL'))
     canada_computers(driver, item_list)
-    driver.get(os.getenv("BEST_BUY_URL"))
+    driver.get(config('BEST_BUY_URL'))
     best_buy(driver, item_list)
-    driver.get(os.getenv("NEWEGG_URL"))
+    driver.get(config('NEWEGG_URL'))
     newegg(driver, item_list)
 
     df = pd.DataFrame(item_list,
