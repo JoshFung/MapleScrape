@@ -101,3 +101,7 @@ Run the following commands:
 2. `python manage.py makemigrations`
 3. `python manage.py migrate`
 4. `python manage.py runserver`
+
+## Future Goals
+- Make use of Docker to always have the server running
+- Save backups of data online
