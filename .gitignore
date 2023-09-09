@@ -1,4 +1,6 @@
 .env.development.local
+root/
+scraping/data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

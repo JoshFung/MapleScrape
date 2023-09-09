@@ -1,30 +1,27 @@
-# Canadian GPU Web Scraper
+# MapleScrape
 
-Web scraping Canadian GPU sellers to display on a Django site
-
-![Example Screenshot](<assets/Screenshot Canadian GPU Web Scraper.png>)
+![Example Screenshot](<assets/MapleScrape Screenshot.png>)
 
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
 
-Simplistic GPU web scraper which displays products onto a Django site. Presently it scrapes Newegg, Best Buy, and Canada
-Computers for their online stock. The scraped data is also stored locally in a JSON file named based on the time the
-scraping process occurs.
+Simplistic web scraping function to help retrieve information of graphics cards from sites such as Newegg, Best Buy, and Canada Computers.
 
-It is suggested to make use of Celery to have scheduled scraping, default scheduling being every midnight. Otherwise, it
-is also possible to have individual runs.
+The data scraped by the function is locally stored in a JSON file named based on the time which the scraping process occurs. Furthermore, this data is saved into SQLite to be used on the site.
+
+It is suggested to make use of Celery to have scheduled scraping, default scheduling being every midnight. Otherwise, it is also possible to have individual runs.
 
 NOTE: Don't let your computer sleep otherwise it may cause the scraping process to abruptly stop
 
 ### Built With
 
-- Django
 - Selenium
 - BeautifulSoup4
 - Pandas
 - lxml
 - SQLite3
+- Django
 - Chromedriver
 - Celery
 
@@ -105,10 +102,10 @@ Note: You can end RabbitMQTT service using `rabbitmqctl stop`
 
 Run the following commands:
 
-1. `python manage.py collectstatic` (not required)
-2. `python manage.py makemigrations` (if made changes to model)
-3. `python manage.py migrate`
-4. `python manage.py runserver`
+1. `python3 manage.py collectstatic` (not required)
+2. `python3 manage.py makemigrations` (if made changes to model)
+3. `python3 manage.py migrate`
+4. `python3 manage.py runserver`
 
 ## Future Goals
 
