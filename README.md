@@ -4,7 +4,6 @@ Web scraping Canadian GPU sellers to display on a Django site
 
 ![Example Screenshot](<assets/Screenshot Canadian GPU Web Scraper.png>)
 
-
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
@@ -57,17 +56,17 @@ There are three ways of running the scraping process:
 
 1. Make sure you install RabbitMQTT
 2. Start up RabbitMQ using `sudo rabbitmq-server` in a terminal
-    1. Wait until it completes when message `Starting broker... completed with x plugins`
+   1. Wait until it completes when message `Starting broker... completed with x plugins`
 3. Start up the actual service with the Celery command: `celery -A gpu-web-scraper worker -B -l INFO`
-    1. `-A gpu-web-scraper` specifies which project
-    2. `-B` tells it to run on the given beat schedule
-    3. `-l INFO` tells it log information
+   1. `-A gpu-web-scraper` specifies which project
+   2. `-B` tells it to run on the given beat schedule
+   3. `-l INFO` tells it log information
 
 #### With Celery and RabbitMQTT without a schedule
 
 1. Do the same first two steps as above
 2. Start up the Celery service using: `celery -A gpu-web-scraper worker -l INFO`
-    - Note that we don't use `-B` as we don't want it on a service
+   - Note that we don't use `-B` as we don't want it on a service
 3. Open up a third terminal
 4. Import the Django settings module using `export DJANGO_SETTINGS_MODULE=gpu-web-scraper.settings`
 5. Enter the Python console and run the following:
@@ -97,11 +96,12 @@ Note: You can end RabbitMQTT service using `rabbitmqctl stop`
 
 Run the following commands:
 
-1. `python manage.py collectstatic`
-2. `python manage.py makemigrations`
+1. `python manage.py collectstatic` (not required)
+2. `python manage.py makemigrations` (if made changes to model)
 3. `python manage.py migrate`
 4. `python manage.py runserver`
 
 ## Future Goals
+
 - Make use of Docker to always have the server running
 - Save backups of data online
