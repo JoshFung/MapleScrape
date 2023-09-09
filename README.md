@@ -40,6 +40,15 @@ pip install -r requirements.txt
 
 ### Set your `.env` variables
 
+```
+SECRET_KEY -> Django secret key
+CHROME_PATH -> Absolute path to Google Chrome
+CHROMEDRIVER_PATH -> Absolute path to Chromedriver
+NEWEGG_URL -> URL for Newegg GPUs
+BEST_BUY_URL -> URL for Best Buy GPUs
+CANADA_COMPUTERS_URL -> URL for Canada Computers GPUs
+```
+
 Ensure the URLs you set are for the GPU pages of the respective sites.
 
 For example:
