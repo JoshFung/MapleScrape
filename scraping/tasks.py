@@ -14,34 +14,25 @@ from scraping.stores.best_buy import best_buy
 from scraping.stores.canada_computers import canada_computers
 from scraping.stores.newegg import newegg
 
-
-# ------------------------------------------------------------------------
-# # TODO: Temporary Service() while Chromedriverv103 is broken
-# # service = Service(executable_path=ChromeDriverManager().install())
-# service = Service(executable_path=r"/Users/joshfung/Documents/PyCharm/learning-web-scrape/chromedriver")
-#
-# chrome_options = Options()
-# # TODO: Remove when switching off beta of Chrome and Chromedriver
-# chrome_options.binary_location = "/Applications/Google Chrome Beta.app/Contents/MacOS/Google Chrome Beta"
-# chrome_options.page_load_strategy = 'normal'
-# driver = webdriver.Chrome(service=service, options=chrome_options)
-# driver.get("https://www.newegg.ca/Desktop-Graphics-Cards/SubCategory/ID-48?Tid=7708&PageSize=96")
-# # driver.get("https://www.newegg.ca/Desktop-Graphics-Cards/SubCategory/ID-48/Page-7?Tid=7708&PageSize=96")
-# ------------------------------------------------------------------------
-
+import time
 
 @shared_task
 def scrape():
+    time_start = time.time()
+
     # service = Service(executable_path=ChromeDriverManager().install())
     service = Service(executable_path=config('CHROMEDRIVER_PATH'))
 
     chrome_options = Options()
-    # TODO: Remove when switching off beta of Chrome and Chromedriver
-    chrome_options.binary_location = "/Applications/Google Chrome Beta.app/Contents/MacOS/Google Chrome Beta"
-    chrome_options.page_load_strategy = 'normal'
-    # chrome_options.add_argument('--headless')
+    chrome_options.binary_location = config("CHROME_PATH")
+    chrome_options.page_load_strategy = 'eager'
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--window-size=1920,1080')
+
     driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver.maximize_window()
+    # driver.maximize_window()
 
     conn = create_connection('db.sqlite3')
     with conn:
@@ -67,6 +58,7 @@ def scrape():
 
     driver.close()
     driver.quit()
+    print(f"Total Time: {time.time() - time_start}")
 
 
 @shared_task()
@@ -81,10 +73,19 @@ def create_connection(db_file):
 
 @shared_task()
 def delete_all_rows(conn):
-    sql = 'DELETE FROM scraping_product'
-    cur = conn.cursor()
-    cur.execute(sql)
-    conn.commit()
+    try:
+        # Check if the table has any rows
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM scraping_product")
+        row_count = cur.fetchone()[0]
+
+        if row_count > 0:
+            # If there are rows, execute the DELETE query
+            sql = 'DELETE FROM scraping_product'
+            cur.execute(sql)
+            conn.commit()
+    except Exception as e:
+        print(e)
 
 
 @shared_task(serializer='json')
