@@ -1,22 +1,22 @@
+from random import randint
 import re
 from time import sleep
 
 from bs4 import BeautifulSoup
 from celery import shared_task
-from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
-
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 @shared_task
 def best_buy(driver, item_list):
-    code = load_all(driver)
-    print(f'CODE: {code}')
+    status_code = load_all(driver)
+    print(f'CODE: {status_code}')
 
     # if we site failed to load
-    if code == 400 or code == 404:
+    if status_code == 400 or status_code == 404:
         return
-
-    sleep(5)
 
     html = driver.page_source
     soup = BeautifulSoup(html, 'lxml')
@@ -45,14 +45,16 @@ def get_name_and_brand(item, entry):
     try:
         entry.update({'item': name_and_brand[1]})
         entry.update({'brand': name_and_brand[0]})
+        print(f'ITEM NAME: {name_and_brand[1]}')
     except IndexError as e:
         entry.update({'brand': None})
         entry.update({'item': name_and_brand[0]})
+        print(f'ITEM NAME: {name_and_brand[0]}')
 
 
 @shared_task
 def extract_num(string):
-    print(f'NUM: {string}')
+    # print(f'NUM: {string}')
     no_commas = string.replace(",", "")
     try:
         filtered_string = re.findall(r'\d+\.\d+', no_commas)[0]
@@ -85,15 +87,21 @@ def get_price(item, entry):
 def get_rating(item, entry):
     item_rating = item.find('meta', {'itemprop': 'ratingValue'})['content']
     num_ratings = item.find('meta', {'itemprop': 'reviewCount'})['content']
-    print(f'RATING: {item_rating} => # of RATINGS: {num_ratings}')
+    # print(f'RATING: {item_rating} => # of RATINGS: {num_ratings}')
     entry.update({'rating': item_rating})
     entry.update({'number_of_ratings': num_ratings})
 
 
 @shared_task
 def get_shipping(item, entry):
-    item_shipping = item.find('span', {'class': 'container_1DAvI'}).get_text()
-    item_shipping = item_shipping.strip()
+
+    element = item.find('span', {'class': 'container_1DAvI'})
+    if element is None:
+        entry.update({'shipping': ''})
+        print('NUM COULDN\'T FIND SHIPPING CLASS')
+        return
+    element_text = element.get_text()
+    item_shipping = element_text.strip()
     if item_shipping != 'Available to ship':
         item_shipping = 'Sold out online'
     entry.update({'shipping': item_shipping})
@@ -101,7 +109,11 @@ def get_shipping(item, entry):
 
 @shared_task
 def get_availability(item, entry):
-    availability = item.find('span', {'class': 'container_1DAvI'}).get_text()
+    element = item.find('span', {'class': 'container_1DAvI'})
+    if element is None:
+        entry.update({'out_of_stock': 'False'})
+        return
+    availability = element.get_text()
     if availability == "Available to ship":
         entry.update({'out_of_stock': 'False'})
     else:
@@ -137,22 +149,29 @@ def item_details(item):
 
 @shared_task
 def load_all(driver):
-    failure_count = 0
+    print("Starting load_all")
 
     while True:
-        sleep(3)
-        driver.execute_script("window.scrollTo(1,50000)")
+        print("Scrolling down")
+        driver.execute_script("window.scrollBy(1,1500)")
         try:
-            driver.find_element(By.CLASS_NAME, 'endOfList_b04RG')
-            return 200
-        except (NoSuchElementException, ElementNotInteractableException) as e:
-            try:
+            print("Waiting to find show more button...")
+            WebDriverWait(driver, 15).until(EC.any_of(
+                EC.element_to_be_clickable((By.CLASS_NAME, 'loadMore_3AoXT')),
+                EC.presence_of_element_located((By.CLASS_NAME, 'endOfList_b04RG'))
+            ))
+            
+            element = driver.find_element(By.CLASS_NAME, 'loadMore_3AoXT')
+            print("Click show more button...")
+            element.click()
 
-                button = driver.find_element(By.XPATH,
-                                             '/html/body/div[1]/div/div[2]/div[1]/div/main/a/div/button')
-                driver.execute_script('arguments[0].click();', button)
-            except (NoSuchElementException, ElementNotInteractableException) as e:
-                print('COULD NOT FIND LOAD MORE NOR END OF LIST')
-                failure_count += 1
-                if failure_count == 30:
-                    return 404
+            
+        except NoSuchElementException:
+            # driver.execute_script("window.scrollBy(1,1500)")
+            print("No more load more elements found")
+            return 200
+
+        except TimeoutException:
+            print("TimeoutException when looking for pagination element or no more div")
+            return 404
+

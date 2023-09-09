@@ -17,9 +17,17 @@ app.config_from_object('django.conf:settings', namespace='celery')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    # executes every 10 minute
-    'scraping-task-ten-min': {
+    # TODO: Change this back!
+    # 'scraping-task-on-startup-and-every-min': {
+    #     'task': 'scraping.tasks.scrape',
+    #     'schedule': crontab(),  # Run immediately on startup and every minute after
+    # },
+    # 'scraping-task-every-five-minutes': {
+    #     'task': 'scraping.tasks.scrape',
+    #     'schedule': crontab(minute='*/5'),  # Run every 5 minutes
+    # },
+    'scraping-task-every-ten-minutes': {
         'task': 'scraping.tasks.scrape',
-        'schedule': crontab(minute=0, hour=0)
+        'schedule': crontab(minute='*/10'),  # Run every 10 minutes
     }
 }

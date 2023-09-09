@@ -12,13 +12,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 @shared_task
 def newegg(driver, item_list):
+    print("Starting Newegg...")
     current_page = 1
     total_pages = find_pages(driver)
 
     while current_page < total_pages:
         print(f'NEWEGG: {current_page}')
 
-        sleep(randint(1, 2))
+        sleep(randint(0, 1))
 
         html = driver.page_source
         soup = BeautifulSoup(html, 'lxml')
@@ -38,6 +39,7 @@ def get_all_items(soup, entries):
         else:
             item_entry = item_details(item)
             entries.append(item_entry)
+            print("Appended item...")
 
 
 @shared_task
@@ -151,11 +153,16 @@ def find_pages(driver):
 def next_page(driver):
     # make sure it loads in (otherwise it can throw an error)
     try:
-        WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.CLASS_NAME, 'list-tool-pagination-text')))
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'list-tool-pagination')))
     except TimeoutException:
+        print("TimeoutException when looking for pagination element")
         driver.quit()
 
-    sleep(randint(1, 2))
+    sleep(randint(0, 1))
 
-    driver.find_element(By.XPATH,
-                        '/html/body/div[8]/div[3]/section/div/div/div[2]/div/div/div[2]/div[2]/div/div[1]/div[4]/div/div/div[11]/button').click()
+    print("Finding button to paginate...")
+    paginate_button = driver.find_element(By.XPATH,
+                        "//div[@class='btn-group-cell'][last()]")
+    print("Clicking on paginate button...")
+    paginate_button.click()
+    print("Going next page...")
