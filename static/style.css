@@ -1,21 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@100&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap");
 
 * {
-    font-family: 'Work Sans', sans-serif;
+  font-family: "Noto Sans JP", sans-serif;
 }
 
 .navbar-brand {
-    text-align: center;
-    font-size: 64px;
+  text-align: center;
+  font-size: 64px;
 }
 
-
 #icon {
-    font-size: 1.5rem;
-    padding-left: 1rem;
+  font-size: 1.5rem;
+  padding-left: 1rem;
 }
 
 #spacer-icon {
-    font-size: 1.5rem;
-    padding-right: 1rem;
+  font-size: 1.5rem;
+  padding-right: 1rem;
 }
